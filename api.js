@@ -3,7 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 //import "./models/associations.js";
-//import router from "./routes/routes.js";
+import router from "./routes/routes.js";
 
 const app = express();
 
@@ -18,8 +18,7 @@ app.use(
     })
 );
 
-//app.use(router);
-
+app.use(router);
 
 async function main() {
     await sequelize.sync({ force: false });
