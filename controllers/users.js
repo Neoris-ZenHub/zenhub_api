@@ -110,3 +110,21 @@ export const logIn = async (req, res) => {
         res.status(500).send({ error: error.message });
     }
 };
+
+export const getUser = async (req, res) => {
+    const _id_user = req.user._id_user;
+    
+    try {
+        const user = await User.findByPk(_id_user)
+
+        if (!user) {
+            return res.status(404).send({ message: "User not found." });
+        }
+
+        res.status(200).send(user);
+    
+
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+}
