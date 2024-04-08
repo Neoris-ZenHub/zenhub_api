@@ -26,11 +26,6 @@ export const Course = sequelize.define(
         duration: {
             type: DataTypes.INTEGER,
             allowNull: false,
-        },
-        status: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false,
         }
     },
     {

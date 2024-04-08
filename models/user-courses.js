@@ -29,6 +29,11 @@ export const UserCourse = sequelize.define(
               key: "_id_user"
             }
         },
+        status: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        }
     },
     {
         tableName: "user-courses",
