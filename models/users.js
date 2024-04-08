@@ -31,7 +31,7 @@ export const User = sequelize.define(
             allowNull: false,
             defaultValue: "consumer",
         },
-        puntaje: {
+        points: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,

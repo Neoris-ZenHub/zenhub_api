@@ -2,7 +2,7 @@ import { sequelize } from "./config/db.js";
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
-//import "./models/associations.js";
+import "./models/associations.js";
 import router from "./routes/routes.js";
 
 const app = express();
