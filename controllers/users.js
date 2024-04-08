@@ -111,6 +111,7 @@ export const logIn = async (req, res) => {
     }
 };
 
+//Get User
 export const getUser = async (req, res) => {
     const _id_user = req.user._id_user;
     

@@ -12,15 +12,15 @@ const router = Router();
 //----------Course Routes-------------
 
 //Create Course
-router.post("/", createCourse, validateToken);
+router.post("/", validateToken, createCourse);
 
 //Get All Course
-router.get("/all", getAllCourses, validateToken);
+router.get("/all", validateToken, getAllCourses);
 
 //Get Course with ID
-router.get("/", getCourse, validateToken);
+router.get("/", validateToken, getCourse);
 
 //Update Course
-router.put("/", updateCourse, validateToken);
+router.put("/", validateToken, updateCourse);
 
 export default router;

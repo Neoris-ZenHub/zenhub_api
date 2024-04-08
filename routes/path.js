@@ -13,18 +13,18 @@ const router = Router();
 //----------Path Routes-------------
 
 //Create Path
-router.post("/", createPath, validateToken);
+router.post("/", validateToken, createPath);
 
 //Get All Paths
-router.get("/all", getAllPaths, validateToken);
+router.get("/all",validateToken, getAllPaths);
 
 //Get Random Paths
-router.get("/random", getRandomPaths, validateToken);
+router.get("/random",validateToken, getRandomPaths);
 
 //Get Path
-router.get("/", getPath, validateToken);
+router.get("/", validateToken, getPath);
 
 //Update Path
-router.put("/", updatePath, validateToken);
+router.put("/",validateToken, updatePath);
 
 export default router;

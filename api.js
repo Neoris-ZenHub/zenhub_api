@@ -21,7 +21,7 @@ app.use(
 app.use(router);
 
 async function main() {
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ force: false });
     console.log("Connected to DB")
 
     const PORT = process.env.PORT || 4000;
