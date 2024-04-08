@@ -112,7 +112,7 @@ export const logIn = async (req, res) => {
 };
 
 export const getUser = async (req, res) => {
-    const _id_user = req.params._id_user;
+    const _id_user = req.user._id_user;
     
     try {
         const user = await User.findByPk(_id_user)
