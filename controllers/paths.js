@@ -25,7 +25,7 @@ export const createPath = async (req,res) => {
 
         res.status(200).send({
             message: "Path created successfully",
-            course: newPath,
+            path: newPath,
         });
 
     }catch (error) {
@@ -138,7 +138,7 @@ export const updatePath = async (req,res) => {
 
         const path = await Path.findByPk(_id_path);
         if (!path) {
-            return res.status(404).send({ message: "Course not found" });
+            return res.status(404).send({ message: "Path not found" });
         }
 
         const updated = await path.update({
@@ -148,7 +148,7 @@ export const updatePath = async (req,res) => {
         if (updated) {
             return res.status(200).send({
                 message: "Path updated successfully",
-                course: updated,
+                path: updated,
             });
         } else {
             return res.status(400).send({

@@ -16,7 +16,7 @@ export const UserPath = sequelize.define(
             defaultValue: DataTypes.UUIDV4,
             allowNull: false,
             references: {
-              model: Path,
+              model: "paths",
               key: "_id_path"
             }
         },
@@ -25,7 +25,7 @@ export const UserPath = sequelize.define(
             defaultValue: DataTypes.UUIDV4,
             allowNull: false,
             references: {
-              model: User,
+              model: "users",
               key: "_id_user"
             }
         },
