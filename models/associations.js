@@ -21,12 +21,6 @@ Progress.belongsTo(User, { foreignKey: '_id_user' });
 Course.hasMany(Progress, { foreignKey: '_id_course' });
 Progress.belongsTo(Course, { foreignKey: '_id_course' });
 
-/*UserPath-Path One-to-Many association
-UserPath.belongsTo(Path, { foreignKey: '_id_path' });
-Path.hasMany(UserPath, { foreignKey: '_id_path' });
-
-UserPath.belongsTo(User, { foreignKey: '_id_user' });
-User.hasMany(UserPath, { foreignKey: '_id_user' });*/
 
 
 
