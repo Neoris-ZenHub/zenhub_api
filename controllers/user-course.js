@@ -1,33 +1,29 @@
-import { UserPath } from "../models/user-paths.js";
 import { User } from "../models/users.js";
-import { Path } from "../models/paths.js";
+import { Course } from "../models/courses.js";
 import Sequelize from "sequelize";
 
-//Get User Paths
-export const getUserPath = async (req, res) => {
+//Get Courses from a User
+export const getUserCourses = async (req, res) => {
+
     const _id_user = req.user._id_user;
 
-    try {
-        const userPath = await User.findOne({
+    try{
+        const courses = await User.findOne({
             where: { _id_user: _id_user },
             include: [{
-                model: Path,
+                model: Course,
                 attributes: ['name'], // Specify the attributes you want to include
+                through: { attributes: [] },
             }]
         });
 
-        if (!userPath) {
-            res.status(404).send({
-                message: "User paths not found",
-            });
-            return;
+        if(!courses){
+            return res.status(404).send({message: "Course not found"});
         }
 
-        const pathNames = userPath.Paths.map(path => path.name);
-
         res.status(200).send({
-            message: "User paths retrieved successfully",
-            path: pathNames
+            message: "Course created successfully",
+            courses: courses.Courses,
         });
     } catch (error) {
         console.error("Error during user-path retrieval:", error);
@@ -36,4 +32,4 @@ export const getUserPath = async (req, res) => {
             error: error.message,
         });
     }
-};
+}

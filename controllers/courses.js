@@ -152,29 +152,3 @@ export const updateCourse = async (req, res) => {
         }
     }
 };
-
-//Get Courses from a Users Path
-
-export const getUserPathCourses = async (req, res) => {
-
-    const _id_user = req.user._id_user;
-
-    try{
-        const paths = await Course.findAll({
-            include:
-            {
-                model: UserPath,
-                where: { _id_user: _id_user},
-            },
-            where: {
-                _id_path: Sequelize.col('Path._id_path')
-            }
-        })
-    } catch (error) {
-        console.error("Error during user-path retrieval:", error);
-        res.status(500).send({
-            message: "An unexpected error occurred",
-            error: error.message,
-        });
-    }
-}
