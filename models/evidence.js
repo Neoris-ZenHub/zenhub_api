@@ -33,7 +33,7 @@ export const Evidence = sequelize.define(
       defaultValue: 'pending',
     },
     evidence_image: {
-      type: DataTypes.BYTEA, 
+      type: DataTypes.BLOB(), 
       allowNull: true,
     },
   },

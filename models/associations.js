@@ -4,6 +4,7 @@ import { Path } from "./paths.js";
 import { Progress } from "./progress.js";
 import { UserPath } from "./user-paths.js";
 import { UserCourse } from "./user-courses.js";
+import { Evidence } from "./evidence.js";
 
 // User-Course Many-to-Many association through UserCourse
 User.belongsToMany(Course, { through: UserCourse, foreignKey: '_id_user', otherKey: '_id_course' });
@@ -21,7 +22,11 @@ Progress.belongsTo(User, { foreignKey: '_id_user' });
 Course.hasMany(Progress, { foreignKey: '_id_course' });
 Progress.belongsTo(Course, { foreignKey: '_id_course' });
 
+// Assuming associations might also be needed for the Evidence
+User.hasMany(Evidence, { foreignKey: '_id_user' });
+Evidence.belongsTo(User, { foreignKey: '_id_user' });
 
-
+Course.hasMany(Evidence, { foreignKey: '_id_course' });
+Evidence.belongsTo(Course, { foreignKey: '_id_course' });
 
 
