@@ -28,9 +28,9 @@ export const Evidence = sequelize.define(
       },
     },
     status: {
-      type: DataTypes.ENUM('pending', 'approved'),
+      type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: 'pending',
+      defaultValue: false,
     },
     evidence_image: {
       type: DataTypes.BLOB(), 
