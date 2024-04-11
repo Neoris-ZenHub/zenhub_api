@@ -13,7 +13,7 @@ export const getUserCourses = async (req, res) => {
             where: { _id_user: _id_user },
             include: [{
                 model: Course,
-                attributes: ['name'], // Specify the attributes you want to include
+                attributes: ['name'], 
                 through: { attributes: [] },
                 include: [{
                     model: Progress,

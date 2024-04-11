@@ -12,7 +12,7 @@ export const getUserPath = async (req, res) => {
             where: { _id_user: _id_user },
             include: [{
                 model: Path,
-                attributes: ['name'], // Specify the attributes you want to include
+                attributes: ['name'], 
             }]
         });
 
