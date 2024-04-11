@@ -12,6 +12,10 @@ export const Path = sequelize.define(
         name: {
             type: DataTypes.STRING(255),
             allowNull: false,
+        },
+        description: {
+            type: DataTypes.TEXT(255),
+            allowNull: false,
         }
     },
     {
