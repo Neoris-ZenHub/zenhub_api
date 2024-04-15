@@ -6,10 +6,12 @@ export const createPath = async (req,res) => {
     try{
         const {
             name,
+            description,
         } = req.body;
 
         const requiredFields = [
             "name",
+            "description",
         ];
         for (const field of requiredFields) {
             if (!req.body[field]) {
@@ -20,7 +22,8 @@ export const createPath = async (req,res) => {
         }
 
         const newPath = await Path.create({
-            name
+            name,
+            description
         });
 
         res.status(200).send({
