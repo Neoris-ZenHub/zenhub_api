@@ -1,46 +1,40 @@
 import { User } from "../models/users.js";
 import { Course } from "../models/courses.js";
-import { Progress } from "../models/progress.js";
 import Sequelize from "sequelize";
 
 //Get Courses from a User
 export const getUserCourses = async (req, res) => {
-
     const _id_user = req.user._id_user;
 
-    try{
-        const courses = await User.findOne({
+    try {
+        const user = await User.findOne({
             where: { _id_user: _id_user },
             include: [{
                 model: Course,
-                attributes: ['name'], 
-                through: { attributes: [] },
-                include: [{
-                    model: Progress,
-                    where: { _id_user: _id_user },
-                    attributes: ['percentage'],
-                    required: false,
-                }],
+                attributes: ['name'],
+                through: {
+                    attributes: ['progress'],  
+                }
             }]
         });
 
-        if(!courses){
-            return res.status(404).send({message: "Course not found"});
+        if (!user || !user.Courses) {
+            return res.status(404).send({message: "Courses not found for the user"});
         }
 
         res.status(200).send({
             message: "Courses retrieved successfully",
-            courses: courses.Courses.map(course => ({
+            courses: user.Courses.map(course => ({
                 name: course.name,
-                percentage: course.Progresses.length > 0 ? course.Progresses[0].percentage : 0,
+                percentage: course.UserCourse.progress  
             })),
         });
         
     } catch (error) {
-        console.error("Error during user-path retrieval:", error);
+        console.error("Error retrieving user courses:", error);
         res.status(500).send({
             message: "An unexpected error occurred",
             error: error.message,
         });
     }
-}
+};

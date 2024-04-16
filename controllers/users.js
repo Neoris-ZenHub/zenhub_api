@@ -3,7 +3,9 @@ import dotenv from "dotenv";
 import Sequelize from "sequelize";
 import jwt from "jsonwebtoken";
 import { User } from "../models/users.js";
-
+import { Path } from "../models/paths.js";
+import { Course } from "../models/courses.js";
+import { UserCourse } from "../models/user-courses.js";
 //Sign Up
 export const createUser = async (req,res) => {
     try {
@@ -129,3 +131,68 @@ export const getUser = async (req, res) => {
         res.status(500).send({ error: error.message });
     }
 }
+
+//Get ranking with specific filters
+export const getRankings = async (req, res) => {
+    const { orderBy, pathName } = req.body;
+
+    try {
+        let orderCriteria = [];
+        if (orderBy === 'neorimas') {
+            orderCriteria = [['neorimas', 'DESC']];
+        } else if (orderBy === 'puntaje') {
+            orderCriteria = [['points', 'DESC']];
+        }
+
+        let options = {
+            attributes: [
+                'name',
+                [Sequelize.fn('SUM', Sequelize.col('UserCourses.progress')), 'hours'],
+                'neorimas',
+                'points'
+            ],
+            include: [
+                {
+                    model: Path,
+                    attributes: [],
+                    where: {},
+                    required: false,
+                    include: [{
+                        model: Course,
+                        attributes: [],
+                        include: [{
+                            model: UserCourse,
+                            attributes: []
+                        }]
+                    }]
+                }
+            ],
+            group: ['User._id_user', 'Path._id_path'],
+            order: orderCriteria
+        };
+
+        if (pathName && pathName !== 'global') {
+            options.include[0].where.name = pathName;
+        }
+
+        const rankingList = await User.findAll(options);
+
+        const formattedRanking = rankingList.map((user, index) => ({
+            ranking: index + 1,
+            userName: user.name,
+            hours: user.get('hours'),
+            neorimas: user.neorimas,
+            points: user.points
+        }));
+
+        res.json({ ranking: formattedRanking });
+    } catch (error) {
+        console.error("Error retrieving rankings:", error);
+        res.status(500).send({ error: error.message });
+    }
+};
+
+
+
+
+

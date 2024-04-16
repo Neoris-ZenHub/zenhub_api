@@ -56,7 +56,7 @@ export const getAllPaths = async (req,res) => {
 
         res.status(200).send({
             message: "Path created successfully",
-            course: allPaths,
+            paths: allPaths,
         });
 
     }catch (error) {

@@ -3,7 +3,8 @@ import { validateToken } from "../middlewares/jwt.js";
 import {
     createUser,
     logIn,
-    getUser
+    getUser,
+    getRankings
 } from "../controllers/users.js";
 
 const router = Router();
@@ -18,5 +19,8 @@ router.post("/login", logIn);
 
 //Get User
 router.get("/homepage/", validateToken, getUser);
+
+//Get Ranking
+router.get("/ranking", validateToken, getRankings);
 
 export default router;
