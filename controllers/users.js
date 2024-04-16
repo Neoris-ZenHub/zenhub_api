@@ -1,6 +1,7 @@
 dotenv.config();
 import dotenv from "dotenv";
 import Sequelize from "sequelize";
+import sequelize from "sequelize";
 import jwt from "jsonwebtoken";
 import { User } from "../models/users.js";
 import { Path } from "../models/paths.js";
@@ -132,67 +133,64 @@ export const getUser = async (req, res) => {
     }
 }
 
-//Get ranking with specific filters
+//Get Ranking for dashboard
 export const getRankings = async (req, res) => {
-    const { orderBy, pathName } = req.body;
-
     try {
-        let orderCriteria = [];
-        if (orderBy === 'neorimas') {
-            orderCriteria = [['neorimas', 'DESC']];
-        } else if (orderBy === 'puntaje') {
-            orderCriteria = [['points', 'DESC']];
+        const { sortField } = req.body;
+
+        let whereClause = {};
+        let orderClause = [['points', 'DESC']];  
+        let pathWhereClause = {}; 
+
+        switch (sortField) {
+            case 'global':
+                orderClause = [['points', 'DESC']];
+                break;
+            case 'neorimas':
+                orderClause = [['neorimas', 'DESC']];
+                break;
+            case 'points':
+                orderClause = [['points', 'DESC']];
+                break;
+            default:
+                pathWhereClause.name = sortField;  
+                break;
         }
 
-        let options = {
+        const users = await User.findAll({
             attributes: [
-                'name',
-                [Sequelize.fn('SUM', Sequelize.col('UserCourses.progress')), 'hours'],
-                'neorimas',
-                'points'
+                'name', 'neorimas', 'points',
+                [sequelize.literal(`(
+                    SELECT SUM(uc.minutes)
+                    FROM "user-courses" AS uc
+                    JOIN "courses" AS c ON c._id_course = uc._id_course
+                    JOIN "user-paths" AS up ON up._id_user = uc._id_user
+                    WHERE up._id_user = "User"."_id_user" AND up._id_path = c._id_path
+                )`), 'totalMinutes']
             ],
-            include: [
-                {
-                    model: Path,
-                    attributes: [],
-                    where: {},
-                    required: false,
-                    include: [{
-                        model: Course,
-                        attributes: [],
-                        include: [{
-                            model: UserCourse,
-                            attributes: []
-                        }]
-                    }]
-                }
-            ],
-            group: ['User._id_user', 'Path._id_path'],
-            order: orderCriteria
-        };
+            include: [{
+                model: Path,
+                attributes: ['name'],
+                required: true,
+                where: pathWhereClause  
+            }],
+            where: whereClause,
+            order: orderClause
+        });
 
-        if (pathName && pathName !== 'global') {
-            options.include[0].where.name = pathName;
-        }
-
-        const rankingList = await User.findAll(options);
-
-        const formattedRanking = rankingList.map((user, index) => ({
-            ranking: index + 1,
-            userName: user.name,
-            hours: user.get('hours'),
+        const formattedUsers = users.map((user) => ({
+            name: user.name,
+            path: user.Paths[0].name,
+            minutes: parseInt(user.dataValues.totalMinutes, 10) || 0,
             neorimas: user.neorimas,
             points: user.points
         }));
 
-        res.json({ ranking: formattedRanking });
+        res.json(formattedUsers);
     } catch (error) {
-        console.error("Error retrieving rankings:", error);
-        res.status(500).send({ error: error.message });
+        console.error('Error fetching ranking:', error);
+        res.status(500).send('Server error while fetching rankings');
     }
 };
-
-
-
 
 

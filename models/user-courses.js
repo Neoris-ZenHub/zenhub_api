@@ -38,6 +38,11 @@ export const UserCourse = sequelize.define(
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
+        },
+        minutes: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
         }
     },
     {
