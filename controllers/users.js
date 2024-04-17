@@ -136,7 +136,8 @@ export const getUser = async (req, res) => {
 //Get Ranking for dashboard
 export const getRankings = async (req, res) => {
     try {
-        const { sortField } = req.body;
+        const { sortField, orderField } = req.body; // sort field --> global or path name
+                                                    // order field --> neorimas or puntos
 
         let whereClause = {};
         let orderClause = [['points', 'DESC']];  
@@ -146,14 +147,17 @@ export const getRankings = async (req, res) => {
             case 'global':
                 orderClause = [['points', 'DESC']];
                 break;
-            case 'neorimas':
-                orderClause = [['neorimas', 'DESC']];
-                break;
-            case 'points':
-                orderClause = [['points', 'DESC']];
-                break;
             default:
                 pathWhereClause.name = sortField;  
+                break;
+        }
+
+        switch(orderField){
+            case 'neorimas':
+                orderClause = [['neorimas','DESC']];
+                break;
+            default:
+                orderClause = [['points', 'DESC']];
                 break;
         }
 
