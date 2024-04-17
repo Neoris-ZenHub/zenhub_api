@@ -193,4 +193,19 @@ export const getRankings = async (req, res) => {
     }
 };
 
+export const getUserRanking = async (req, res) => {
+    const { _id_user } = req.body;
 
+    try{
+        const user = await User.findByPk(_id_user);
+
+        if (!user) {
+            return res.status(404).send({ message: "User not found." });
+        }
+
+        res.status(200).send(user);
+    
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+}
+}

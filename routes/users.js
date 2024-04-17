@@ -4,7 +4,8 @@ import {
     createUser,
     logIn,
     getUser,
-    getRankings
+    getRankings,
+    getUserRanking
 } from "../controllers/users.js";
 
 const router = Router();
@@ -22,5 +23,8 @@ router.get("/homepage/", validateToken, getUser);
 
 //Get Ranking
 router.get("/ranking", validateToken, getRankings);
+
+//Get User Ranking
+router.get("/ranking/user", validateToken, getUserRanking);
 
 export default router;
