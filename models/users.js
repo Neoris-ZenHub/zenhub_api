@@ -45,14 +45,11 @@ export const User = sequelize.define(
             allowNull: false,
             defaultValue: 0,
         },
-        is_valid: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true,
-        },
     },
     {
         tableName: "users",
         timestamps: true,
+        paranoid: true
     }
 );
 

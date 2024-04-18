@@ -87,7 +87,7 @@ export const logIn = async (req, res) => {
         const user = await User.findOne({
             where: {
                 email: email,
-                is_valid: true,
+                deletedAt: null,
             },
         });
 
