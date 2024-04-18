@@ -1,20 +1,31 @@
 import Sequelize from "sequelize";
+import { Course } from "../models/courses.js";
 import { Evidence } from "../models/evidence.js";
 
 // Create a new evidence entry
 export const createEvidence = async (req, res) => {
     try {
         const _id_user = req.user._id_user; 
-        const { _id_course } = req.query; 
+        const { name } = req.query; 
+
+        const decodedName = decodeURIComponent(name);
         let evidence_image = null;
         
         if (req.file) {
             evidence_image = req.file.buffer; 
         }
 
+        const course = await Course.findOne({
+            where: { name: decodedName}
+        })
+
+        if (!course) {
+            return res.status(404).json({ error: "Course not found." });
+        }
+
         const evidence = await Evidence.create({
             _id_user,
-            _id_course,
+            _id_course: course._id_course,
             status: false, 
             evidence_image
         });
