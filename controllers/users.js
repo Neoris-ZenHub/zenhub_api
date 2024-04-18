@@ -136,7 +136,7 @@ export const getUser = async (req, res) => {
 //Get Ranking for dashboard
 export const getRankings = async (req, res) => {
     try {
-        const { sortField, orderField } = req.body; // sort field --> global or path name
+        const { sortField, orderField } = req.query; // sort field --> global or path name
                                                     // order field --> neorimas or puntos
 
         let whereClause = {};
