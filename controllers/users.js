@@ -136,11 +136,12 @@ export const getUser = async (req, res) => {
 //Get Ranking for dashboard
 export const getRankings = async (req, res) => {
     try {
-        const { sortField, orderField } = req.query; // sort field --> global or path name
+        const { sortField, orderField, userSearch } = req.query; // sort field --> global or path name
                                                     // order field --> neorimas or puntos
 
         const decodedSortField = decodeURIComponent(sortField);
         const decodedOrderField = decodeURIComponent(orderField);
+        const decodedUserSearch = decodeURIComponent(userSearch);
 
         let whereClause = {};
         let orderClause = [['points', 'DESC']];  
@@ -185,7 +186,8 @@ export const getRankings = async (req, res) => {
             order: orderClause
         });
 
-        const formattedUsers = users.map((user) => ({
+        const formattedUsers = users.map((user, index) => ({
+            rank: index + 1,
             username: user.username,
             path: user.Paths[0].name,
             minutes: parseInt(user.dataValues.totalMinutes, 10) || 0,
@@ -193,7 +195,18 @@ export const getRankings = async (req, res) => {
             points: user.points
         }));
 
-        res.json(formattedUsers);
+        let response = { users: formattedUsers };
+
+        if (decodedUserSearch) {
+            const user = formattedUsers.find(user => user.username === decodedUserSearch);
+            if (!user) {
+                response.message = 'User not found';
+            } else {
+                response.user = user;
+            }
+        }
+
+        res.json(response);
     } catch (error) {
         console.error('Error fetching ranking:', error);
         res.status(500).send('Server error while fetching rankings');
