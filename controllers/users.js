@@ -139,20 +139,23 @@ export const getRankings = async (req, res) => {
         const { sortField, orderField } = req.query; // sort field --> global or path name
                                                     // order field --> neorimas or puntos
 
+        const decodedSortField = decodeURIComponent(sortField);
+        const decodedOrderField = decodeURIComponent(orderField);
+
         let whereClause = {};
         let orderClause = [['points', 'DESC']];  
         let pathWhereClause = {}; 
 
-        switch (sortField) {
+        switch (decodedSortField) {
             case 'global':
                 orderClause = [['points', 'DESC']];
                 break;
             default:
-                pathWhereClause.name = sortField;  
+                pathWhereClause.name = decodedSortField;  
                 break;
         }
 
-        switch(orderField){
+        switch(decodedOrderField){
             case 'neorimas':
                 orderClause = [['neorimas','DESC']];
                 break;
