@@ -147,7 +147,7 @@ export const getRankings = async (req, res) => {
         let pathWhereClause = {}; 
 
         switch (decodedSortField) {
-            case 'global':
+            case 'Global':
                 orderClause = [['points', 'DESC']];
                 break;
             default:
@@ -156,7 +156,7 @@ export const getRankings = async (req, res) => {
         }
 
         switch(decodedOrderField){
-            case 'neorimas':
+            case 'Neorimas':
                 orderClause = [['neorimas','DESC']];
                 break;
             default:
@@ -166,7 +166,7 @@ export const getRankings = async (req, res) => {
 
         const users = await User.findAll({
             attributes: [
-                'name', 'neorimas', 'points',
+                'username', 'neorimas', 'points',
                 [sequelize.literal(`(
                     SELECT SUM(uc.minutes)
                     FROM "user-courses" AS uc
@@ -186,7 +186,7 @@ export const getRankings = async (req, res) => {
         });
 
         const formattedUsers = users.map((user) => ({
-            name: user.name,
+            username: user.username,
             path: user.Paths[0].name,
             minutes: parseInt(user.dataValues.totalMinutes, 10) || 0,
             neorimas: user.neorimas,
