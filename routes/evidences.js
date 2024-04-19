@@ -6,6 +6,7 @@ import {
     getEvidencesOfUser,
     getEvidencesOfCourse,
     findOldestPendingEvidences,
+    getEvidencesFormatted,
 } from "../controllers/evidences.js";
 
 const router = Router();
@@ -16,12 +17,15 @@ const router = Router();
 router.post("/", validateToken, uploadMiddleware, createEvidence);
 
 //Get All evidences of a user
-router.get("/user", validateToken, getEvidencesOfUser)
+router.get("/user", validateToken, getEvidencesOfUser);
 
 //Get All Evidences of a course
-router.get("/course", validateToken, getEvidencesOfCourse)
+router.get("/course", validateToken, getEvidencesOfCourse);
 
 //Find Oldest Pending Evidences
-router.get("/pending", validateToken, findOldestPendingEvidences)
+router.get("/pending", validateToken, findOldestPendingEvidences);
+
+//Formatted evidence for dashboard
+router.get("/dashboard", validateToken, getEvidencesFormatted);
 
 export default router;

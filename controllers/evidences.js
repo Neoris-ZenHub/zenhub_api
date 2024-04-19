@@ -1,6 +1,9 @@
 import Sequelize from "sequelize";
 import { Course } from "../models/courses.js";
 import { Evidence } from "../models/evidence.js";
+import { User } from "../models/users.js";
+import { Path } from "../models/paths.js";
+import { sequelize } from "../config/db.js";
 
 // Create a new evidence entry
 export const createEvidence = async (req, res) => {
@@ -105,3 +108,54 @@ export const findOldestPendingEvidences = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+
+// Get Evidences for dashboard or reporting
+export const getEvidencesFormatted = async (req, res) => {
+    try {
+        const { groupField, userSearch } = req.body; 
+
+        if (!groupField) {
+            return res.status(400).json({ message: 'Group field parameter is required' });
+        }
+
+        let whereClause = groupField === 'global' ? '' : 'WHERE p.name = :groupName';
+        let sql = `
+            SELECT 
+                ROW_NUMBER() OVER (ORDER BY e."createdAt" ASC) AS "index",
+                u.username AS "username", 
+                c.name AS "course", 
+                p.name AS "path"
+            FROM users AS u
+            JOIN evidences AS e ON u._id_user = e._id_user 
+            JOIN courses AS c ON e._id_course = c._id_course
+            JOIN paths AS p ON p._id_path = c._id_path
+            ${whereClause}
+            ORDER BY e."createdAt" ASC
+        `;
+
+        const evidences = await sequelize.query(sql, {
+            replacements: { groupName: groupField }, 
+            type: sequelize.QueryTypes.SELECT
+        });
+
+        let response = { evidences };
+
+        if (userSearch) {
+            const filteredEvidences = evidences.filter(evidence => evidence.username === userSearch);
+            if (filteredEvidences.length > 0) {
+                response.evidences = filteredEvidences;
+            } else {
+                response.message = "User not found"; 
+            }
+        }
+
+        res.json(response);
+    } catch (error) {
+        console.error('Error fetching evidences:', error);
+        res.status(500).send('Server error while fetching evidences');
+    }
+};
+
+
+
