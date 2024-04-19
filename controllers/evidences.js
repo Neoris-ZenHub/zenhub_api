@@ -113,13 +113,22 @@ export const findOldestPendingEvidences = async (req, res) => {
 // Get Evidences for dashboard or reporting
 export const getEvidencesFormatted = async (req, res) => {
     try {
-        const { groupField, userSearch } = req.body; 
+        const { groupField, orderField, userSearch } = req.params; 
 
         if (!groupField) {
             return res.status(400).json({ message: 'Group field parameter is required' });
         }
 
-        let whereClause = groupField === 'global' ? '' : 'WHERE p.name = :groupName';
+        if (!orderField) {
+            return res.status(400).json({ message: 'Order field parameter is required' });
+        }
+
+        const decodedGroupField = decodeURIComponent(groupField);
+        const decodedOrderField = decodeURIComponent(orderField);
+        const decodedUserSearch = decodeURIComponent(userSearch);
+
+        let whereClause = decodedGroupField === 'global' ? '' : 'WHERE p.name = :groupName';
+        let orderClause = decodedOrderField === 'Reciente' ? 'DESC' : 'ASC';
         let sql = `
             SELECT 
                 ROW_NUMBER() OVER (ORDER BY e."createdAt" ASC) AS "index",
@@ -132,18 +141,18 @@ export const getEvidencesFormatted = async (req, res) => {
             JOIN courses AS c ON e._id_course = c._id_course
             JOIN paths AS p ON p._id_path = c._id_path
             ${whereClause}
-            ORDER BY e."createdAt" ASC
+            ORDER BY e."createdAt" ${orderClause}
         `;
 
         const evidences = await sequelize.query(sql, {
-            replacements: { groupName: groupField }, 
+            replacements: { groupName: decodedGroupField }, 
             type: sequelize.QueryTypes.SELECT
         });
 
         let response = { evidences };
 
-        if (userSearch) {
-            const filteredEvidences = evidences.filter(evidence => evidence.username === userSearch);
+        if (decodedUserSearch) {
+            const filteredEvidences = evidences.filter(evidence => evidence.username === decodedUserSearch);
             if (filteredEvidences.length > 0) {
                 response.evidences = filteredEvidences;
             } else {
