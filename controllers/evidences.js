@@ -124,6 +124,7 @@ export const getEvidencesFormatted = async (req, res) => {
             SELECT 
                 ROW_NUMBER() OVER (ORDER BY e."createdAt" ASC) AS "index",
                 u.username AS "username", 
+                e.evidence_image AS "image",
                 c.name AS "course", 
                 p.name AS "path"
             FROM users AS u
