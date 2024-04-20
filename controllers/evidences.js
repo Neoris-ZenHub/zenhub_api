@@ -113,7 +113,7 @@ export const findOldestPendingEvidences = async (req, res) => {
 // Get Evidences for dashboard or reporting
 export const getEvidencesFormatted = async (req, res) => {
     try {
-        const { groupField, orderField, userSearch } = req.params; 
+        const { groupField, orderField, userSearch } = req.query; 
 
         if (!groupField) {
             return res.status(400).json({ message: 'Group field parameter is required' });
