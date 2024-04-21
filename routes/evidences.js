@@ -7,6 +7,7 @@ import {
     getEvidencesOfCourse,
     findOldestPendingEvidences,
     getEvidencesFormatted,
+    checkEvidence
 } from "../controllers/evidences.js";
 
 const router = Router();
@@ -27,5 +28,8 @@ router.get("/pending", validateToken, findOldestPendingEvidences);
 
 //Formatted evidence for dashboard
 router.get("/dashboard", validateToken, getEvidencesFormatted);
+
+//Update neorimas and points, update progress and delete evidence
+router.put("/check", validateToken, checkEvidence);
 
 export default router;

@@ -3,6 +3,7 @@ import { Course } from "../models/courses.js";
 import { Evidence } from "../models/evidence.js";
 import { User } from "../models/users.js";
 import { Path } from "../models/paths.js";
+import { UserCourse } from "../models/user-courses.js";
 import { sequelize } from "../config/db.js";
 
 // Create a new evidence entry
@@ -181,5 +182,61 @@ export const getEvidencesFormatted = async (req, res) => {
     }
 };
 
+// Add points/neorimas to user after admin checks the evidence
+export const checkEvidence = async (req, res) => {
+    try {
+        const { id_evidence, progress, courseName } = req.body;
+        const adminUserId = req.user._id_user; 
 
+        const adminUser = await User.findByPk(adminUserId);
+        if (!adminUser || adminUser.role !== 'admin') {
+            return res.status(403).json({ message: 'Unauthorized: Only admins can perform this action.' });
+        }
 
+        const evidence = await Evidence.findByPk(id_evidence);
+        if (!evidence) {
+            return res.status(404).json({ message: 'Evidence not found.' });
+        }
+
+        const course = await Course.findOne({
+            where: { name: courseName }
+        });
+        if (!course) {
+            return res.status(404).json({ message: 'Course not found.' });
+        }
+
+        const userCourse = await UserCourse.findOne({
+            where: {
+                _id_user: evidence._id_user, 
+                _id_course: course._id_course 
+            }
+        });
+        if (!userCourse) {
+            return res.status(404).json({ message: 'User course record not found.' });
+        }
+
+        userCourse.progress = progress;
+        if (progress === 100) {
+            userCourse.status = true; 
+            userCourse.minutes = course.duration; 
+        } else {
+            userCourse.minutes = (course.duration * progress / 100).toFixed(0);
+        }
+
+        const pointsToAdd = 1000 * (progress / 100);
+        const neorimasToAdd = 1000 * (progress / 100);
+
+        const user = await User.findByPk(evidence._id_user);
+        user.points += pointsToAdd;
+        user.neorimas += neorimasToAdd;
+        await user.save();
+
+        await userCourse.save();
+
+        res.status(200).json({ message: 'Evidence checked, user course updated, and rewards assigned successfully.' });
+
+    } catch (error) {
+        console.error('Error changing evidence status:', error);
+        res.status(500).send('Server error while processing request.');
+    }
+};
