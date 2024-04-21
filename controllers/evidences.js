@@ -127,7 +127,7 @@ export const getEvidencesFormatted = async (req, res) => {
         const decodedOrderField = decodeURIComponent(orderField);
         const decodedUserSearch = decodeURIComponent(userSearch);
 
-        let whereClause = decodedGroupField === 'global' ? '' : 'WHERE p.name = :groupName';
+        let whereClause = decodedGroupField === 'Global' ? '' : 'WHERE p.name = :groupName';
         let orderClause = decodedOrderField === 'Reciente' ? 'DESC' : 'ASC';
         let sql = `
             SELECT 
@@ -154,7 +154,7 @@ export const getEvidencesFormatted = async (req, res) => {
         if (decodedUserSearch) {
             const filteredEvidences = evidences.filter(evidence => evidence.username === decodedUserSearch);
             if (filteredEvidences.length > 0) {
-                response.evidences = filteredEvidences;
+                response.evidencesUser = filteredEvidences;
             } else {
                 response.message = "User not found"; 
             }
