@@ -113,6 +113,19 @@ export const findOldestPendingEvidences = async (req, res) => {
 // Get Evidences for dashboard or reporting
 export const getEvidencesFormatted = async (req, res) => {
     try {
+
+        const _id_user = req.user._id_user;
+
+        const user = await User.findByPk(_id_user);
+
+        if (!user){
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.role !== 'admin') {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+
         const { groupField, orderField, userSearch } = req.query; 
 
         if (!groupField) {
@@ -132,6 +145,7 @@ export const getEvidencesFormatted = async (req, res) => {
         let sql = `
             SELECT 
                 ROW_NUMBER() OVER (ORDER BY e."createdAt" ASC) AS "index",
+                e._id_evidence AS "id_evidence",
                 u.username AS "username", 
                 e.evidence_image AS "image",
                 c.name AS "course", 
