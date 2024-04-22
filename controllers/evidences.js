@@ -3,6 +3,7 @@ import { Course } from "../models/courses.js";
 import { Evidence } from "../models/evidence.js";
 import { User } from "../models/users.js";
 import { Path } from "../models/paths.js";
+import { UserCourse } from "../models/user-courses.js";
 import { sequelize } from "../config/db.js";
 
 // Create a new evidence entry
@@ -113,39 +114,63 @@ export const findOldestPendingEvidences = async (req, res) => {
 // Get Evidences for dashboard or reporting
 export const getEvidencesFormatted = async (req, res) => {
     try {
-        const { groupField, userSearch } = req.body; 
+
+        const _id_user = req.user._id_user;
+
+        const user = await User.findByPk(_id_user);
+
+        if (!user){
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.role !== 'admin') {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+
+        const { groupField, orderField, userSearch } = req.query; 
 
         if (!groupField) {
             return res.status(400).json({ message: 'Group field parameter is required' });
         }
 
-        let whereClause = groupField === 'global' ? '' : 'WHERE p.name = :groupName';
+        if (!orderField) {
+            return res.status(400).json({ message: 'Order field parameter is required' });
+        }
+
+        const decodedGroupField = decodeURIComponent(groupField);
+        const decodedOrderField = decodeURIComponent(orderField);
+        const decodedUserSearch = decodeURIComponent(userSearch);
+
+        let whereClause = decodedGroupField === 'Global' ? '' : 'WHERE p.name = :groupName';
+        let orderClause = decodedOrderField === 'Reciente' ? 'DESC' : 'ASC';
         let sql = `
             SELECT 
                 ROW_NUMBER() OVER (ORDER BY e."createdAt" ASC) AS "index",
+                e._id_evidence AS "id_evidence",
                 u.username AS "username", 
                 e.evidence_image AS "image",
                 c.name AS "course", 
-                p.name AS "path"
+                p.name AS "path",
+                e.status AS "status"
             FROM users AS u
             JOIN evidences AS e ON u._id_user = e._id_user 
             JOIN courses AS c ON e._id_course = c._id_course
             JOIN paths AS p ON p._id_path = c._id_path
             ${whereClause}
-            ORDER BY e."createdAt" ASC
+            ORDER BY e."createdAt" ${orderClause}
         `;
 
         const evidences = await sequelize.query(sql, {
-            replacements: { groupName: groupField }, 
+            replacements: { groupName: decodedGroupField }, 
             type: sequelize.QueryTypes.SELECT
         });
 
         let response = { evidences };
 
-        if (userSearch) {
-            const filteredEvidences = evidences.filter(evidence => evidence.username === userSearch);
+        if (decodedUserSearch) {
+            const filteredEvidences = evidences.filter(evidence => evidence.username === decodedUserSearch);
             if (filteredEvidences.length > 0) {
-                response.evidences = filteredEvidences;
+                response.evidencesUser = filteredEvidences;
             } else {
                 response.message = "User not found"; 
             }
@@ -158,5 +183,67 @@ export const getEvidencesFormatted = async (req, res) => {
     }
 };
 
+// Add points/neorimas to user after admin checks the evidence
+export const checkEvidence = async (req, res) => {
+    try {
+        const { id_evidence, progress, courseName } = req.body;
+        const adminUserId = req.user._id_user; 
 
+        const adminUser = await User.findByPk(adminUserId);
+        if (!adminUser || adminUser.role !== 'admin') {
+            return res.status(403).json({ message: 'Unauthorized: Only admins can perform this action.' });
+        }
 
+        const evidence = await Evidence.findByPk(id_evidence);
+        if (!evidence) {
+            console.log(id_evidence)
+            console.log('Evidence not found.')
+            return res.status(404).json({ message: 'Evidence not found.' });
+        }
+
+        const course = await Course.findOne({
+            where: { name: courseName }
+        });
+        if (!course) {
+            console.log(' course  not found.')
+            return res.status(404).json({ message: 'Course not found.' });
+        }
+
+        const userCourse = await UserCourse.findOne({
+            where: {
+                _id_user: evidence._id_user, 
+                _id_course: course._id_course 
+            }
+        });
+        if (!userCourse) {
+            console.log('User course record not found.')
+            return res.status(404).json({ message: 'User course record not found.' });
+        }
+        const difference = progress - userCourse.progress;
+        userCourse.progress = progress;
+        if (progress === 100) {
+            userCourse.status = true; 
+            userCourse.minutes = course.duration; 
+        } else {
+            userCourse.minutes = (course.duration * progress / 100).toFixed(0);
+        }
+
+        const pointsToAdd = 1000 * (difference / 100);
+        const neorimasToAdd = 1000 * (difference / 100);
+
+        const user = await User.findByPk(evidence._id_user);
+        user.points += pointsToAdd;
+        user.neorimas += neorimasToAdd;
+        await user.save();
+
+        await userCourse.save();
+
+        await evidence.destroy();
+
+        res.status(200).json({ message: 'Evidence checked, user course updated, and rewards assigned successfully.' });
+
+    } catch (error) {
+        console.error('Error changing evidence status:', error);
+        res.status(500).send('Server error while processing request.');
+    }
+};
