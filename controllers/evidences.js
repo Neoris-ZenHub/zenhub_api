@@ -234,6 +234,8 @@ export const checkEvidence = async (req, res) => {
 
         await userCourse.save();
 
+        await evidence.destroy();
+
         res.status(200).json({ message: 'Evidence checked, user course updated, and rewards assigned successfully.' });
 
     } catch (error) {
