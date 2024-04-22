@@ -1,4 +1,5 @@
 import { sequelize } from "./config/db.js";
+import { populateSprites } from "./utils/spriteBulkCreate.js"
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
@@ -21,12 +22,13 @@ app.use(
 app.use(router);
 
 async function main() {
-    await sequelize.sync({ force: false });
+    await sequelize.sync({ force: true });
     console.log("Connected to DB")
 
     const PORT = process.env.PORT || 4000;
     app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`);
+        //populateSprites(); 
     });
 }
 main();
