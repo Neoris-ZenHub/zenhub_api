@@ -150,7 +150,8 @@ export const getEvidencesFormatted = async (req, res) => {
                 u.username AS "username", 
                 e.evidence_image AS "image",
                 c.name AS "course", 
-                p.name AS "path"
+                p.name AS "path",
+                e.status AS "status"
             FROM users AS u
             JOIN evidences AS e ON u._id_user = e._id_user 
             JOIN courses AS c ON e._id_course = c._id_course
