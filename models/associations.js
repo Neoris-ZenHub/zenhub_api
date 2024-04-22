@@ -4,6 +4,8 @@ import { Path } from "./paths.js";
 import { UserPath } from "./user-paths.js";
 import { UserCourse } from "./user-courses.js";
 import { Evidence } from "./evidence.js";
+import { Sprite } from "./sprites.js";
+import { UserSprite } from "./user-sprites.js";
 
 // User-Course Many-to-Many association through UserCourse
 User.belongsToMany(Course, { through: UserCourse, foreignKey: '_id_user', otherKey: '_id_course' });
@@ -22,3 +24,6 @@ Evidence.belongsTo(Course, { foreignKey: '_id_course' });
 
 Path.hasMany(Course, { foreignKey: '_id_path' });
 Course.belongsTo(Path, { foreignKey: '_id_path' });
+
+User.belongsToMany(Sprite, { through: UserSprite, foreignKey: '_id_user', otherKey: '_id_sprite' });
+Sprite.belongsToMany(User, { through: UserSprite, foreignKey: '_id_sprite', otherKey: '_id_user' });
