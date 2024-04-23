@@ -50,3 +50,46 @@ export const UserCourse = sequelize.define(
         timestamps: true,
     }
 );
+
+//Trigger for new progress on user course
+UserCourse.addHook('afterUpdate', async (userCourse, options) => {
+    const transaction = options.transaction || await sequelize.transaction();
+    try {
+        const oldProgress = userCourse.previous('progress');
+        const newProgress = userCourse.progress;
+        const difference = newProgress - oldProgress;
+
+        if (difference !== 0) {
+            const pointsToAdd = 1000 * (difference / 100); 
+            const neorimasToAdd = 1000 * (difference / 100);
+
+            const user = await User.findByPk(userCourse._id_user, { transaction });
+            if (user) {
+                user.points += pointsToAdd;
+                user.neorimas += neorimasToAdd;
+                await user.save({ transaction });
+            }
+        }
+
+        if (newProgress === 100 && !userCourse.status) {
+            userCourse.status = true;
+            const course = await Course.findByPk(userCourse._id_course, { transaction });
+            if (course) {
+                userCourse.minutes = course.duration;
+            } else {
+                throw new Error("Course not found");
+            }
+            await userCourse.save({ transaction });
+        }
+
+        if (!options.transaction) {
+            await transaction.commit();
+        }
+    } catch (error) {
+        if (!options.transaction) {
+            await transaction.rollback();
+        }
+        console.error('Error in afterUpdate hook for UserCourse:', error);
+        throw error; 
+    }
+});

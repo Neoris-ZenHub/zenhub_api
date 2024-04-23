@@ -187,7 +187,7 @@ export const getEvidencesFormatted = async (req, res) => {
 export const checkEvidence = async (req, res) => {
     try {
         const { id_evidence, progress, courseName } = req.body;
-        const adminUserId = req.user._id_user; 
+        const adminUserId = req.user._id_user;
 
         const adminUser = await User.findByPk(adminUserId);
         if (!adminUser || adminUser.role !== 'admin') {
@@ -196,8 +196,6 @@ export const checkEvidence = async (req, res) => {
 
         const evidence = await Evidence.findByPk(id_evidence);
         if (!evidence) {
-            console.log(id_evidence)
-            console.log('Evidence not found.')
             return res.status(404).json({ message: 'Evidence not found.' });
         }
 
@@ -205,7 +203,6 @@ export const checkEvidence = async (req, res) => {
             where: { name: courseName }
         });
         if (!course) {
-            console.log(' course  not found.')
             return res.status(404).json({ message: 'Course not found.' });
         }
 
@@ -216,26 +213,10 @@ export const checkEvidence = async (req, res) => {
             }
         });
         if (!userCourse) {
-            console.log('User course record not found.')
             return res.status(404).json({ message: 'User course record not found.' });
         }
-        const difference = progress - userCourse.progress;
+
         userCourse.progress = progress;
-        if (progress === 100) {
-            userCourse.status = true; 
-            userCourse.minutes = course.duration; 
-        } else {
-            userCourse.minutes = (course.duration * progress / 100).toFixed(0);
-        }
-
-        const pointsToAdd = 1000 * (difference / 100);
-        const neorimasToAdd = 1000 * (difference / 100);
-
-        const user = await User.findByPk(evidence._id_user);
-        user.points += pointsToAdd;
-        user.neorimas += neorimasToAdd;
-        await user.save();
-
         await userCourse.save();
 
         await evidence.destroy();
@@ -243,7 +224,9 @@ export const checkEvidence = async (req, res) => {
         res.status(200).json({ message: 'Evidence checked, user course updated, and rewards assigned successfully.' });
 
     } catch (error) {
-        console.error('Error changing evidence status:', error);
-        res.status(500).send('Server error while processing request.');
+        console.error('Error during evidence check:', error);
+        res.status(500).json({ message: 'Server error while processing request.' });
     }
 };
+
+
