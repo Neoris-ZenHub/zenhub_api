@@ -53,3 +53,17 @@ export const User = sequelize.define(
     }
 );
 
+//Trigger for not repeating usernames
+User.beforeUpdate(async (user, options) => {
+    if (user.changed('username')) {
+        const existingUser = await User.findOne({
+            where: {
+                username: user.username,
+                _id_user: { [DataTypes.Op.ne]: user._id_user }  
+            }
+        });
+        if (existingUser) {
+            throw new Error('Username is already in use.');
+        }
+    }
+});
