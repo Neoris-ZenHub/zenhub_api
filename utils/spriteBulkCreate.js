@@ -10,7 +10,7 @@ const sprites = [
   { name: "Arbusto con rosas", rarity: "common" },
   { name: "Arbusto invernal", rarity: "common" },
   { name: "Arbusto raro", rarity: "rare" },
-  { name: "Arbusto único", rarity: "legendary" },
+  { name: "Arbusto unico", rarity: "legendary" },
   { name: "Flor rosa", rarity: "common" },
   { name: "Flores amarillas", rarity: "common" },
   { name: "Flores chicas azules", rarity: "common" },
