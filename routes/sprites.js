@@ -2,7 +2,8 @@ import { Router } from "express";
 import { validateToken } from "../middlewares/jwt.js";
 import {
     getRandomSprites,
-    buySprite
+    buySprite,
+    getUserSprites
 } from "../controllers/sprites.js";
 
 const router = Router();
@@ -14,5 +15,8 @@ router.get("/random", validateToken, getRandomSprites);
 
 //Buy a sprite from marketplace
 router.post("/", validateToken, buySprite);
+
+//Get user sprites
+router.get("/user", getUserSprites);
 
 export default router;

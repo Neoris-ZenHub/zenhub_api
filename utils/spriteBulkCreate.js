@@ -31,11 +31,11 @@ const sprites = [
 function getPriceByRarity(rarity) {
   switch (rarity) {
     case 'common':
-      return 500;
+      return 300;
     case 'rare':
-      return 1000;
+      return 500;
     case 'legendary':
-      return 2000;
+      return 1000;
     default:
       return 500;
   }
@@ -54,7 +54,7 @@ function getImageBlob(name) {
 
 async function populateSprites() {
   for (const sprite of sprites) {
-    const formattedName = sprite.name.replace(/\s+/g, '_').toLowerCase();
+    const formattedName = sprite.name;
     try {
       await Sprite.create({
         name: sprite.name,

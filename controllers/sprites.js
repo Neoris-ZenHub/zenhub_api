@@ -3,6 +3,7 @@ import { User } from "../models/users.js";
 import { UserSprite } from "../models/user-sprites.js";
 import { sequelize } from "../config/db.js";
 import Sequelize from "sequelize";
+import { request } from "express";
 
 // Get 6 random sprites
 export const getRandomSprites = async (req, res) => {
@@ -86,4 +87,46 @@ export const buySprite = async (req, res) => {
     }
 };
 
+// Get User Sprites for videogame
+export const getUserSprites = async (req, res) => {
+    try {
+        //const _id_user = req.user._id_user; 
 
+        const { _id_user }= req.body; //Por mientras
+
+        const userSprites = await User.findOne({
+            where: { _id_user: _id_user },
+            include: [{
+                model: Sprite,
+                attributes: ['name', 'sprite_url'],
+                through: {
+                    attributes: [], 
+                }
+            }]
+        });
+
+        if (userSprites) {
+            return res.status(200).send({
+                message: "Sprites retrieved successfully",
+                sprites: userSprites.Sprites 
+            });
+        } else {
+            return res.status(404).send({
+                message: "User not found or has no sprites",
+            });
+        }
+    } catch (error) {
+        console.error("Error during user sprite retrieval:", error);
+        if (error instanceof Sequelize.ValidationError) {
+            return res.status(400).send({
+                message: "Validation error",
+                errors: error.errors
+            });
+        } else {
+            return res.status(500).send({
+                message: "An unexpected error occurred",
+                error: error.message
+            });
+        }
+    }
+};
