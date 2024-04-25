@@ -2,7 +2,7 @@ import { Sprite } from "../models/sprites.js";
 import { User } from "../models/users.js";
 import { UserSprite } from "../models/user-sprites.js";
 import { sequelize } from "../config/db.js";
-import Sequelize from "sequelize";
+import Sequelize, { where } from "sequelize";
 import { request } from "express";
 
 // Get 6 random sprites
@@ -49,6 +49,18 @@ export const buySprite = async (req, res) => {
         if (!spriteBought) {
             await transaction.rollback();
             return res.status(404).send({ message: "Sprite not found" });
+        }
+
+        const existingUserSprite = await UserSprite.findOne({
+            where: {
+                _id_user,
+                _id_sprite,
+            }
+        });
+
+        if (existingUserSprite) {
+            await transaction.rollback();
+            return res.status(403).send({ message: "Sprite already bought" });
         }
 
         const userNeorimas = userBuying.neorimas;
