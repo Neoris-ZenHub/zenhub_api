@@ -60,6 +60,7 @@ export const buySprite = async (req, res) => {
 
         if (existingUserSprite) {
             await transaction.rollback();
+            console.log("Sprite already bought")
             return res.status(403).send({ message: "Sprite already bought" });
         }
 
@@ -67,6 +68,7 @@ export const buySprite = async (req, res) => {
         const spritePrice = spriteBought.price;
         if (spritePrice > userNeorimas) {
             await transaction.rollback();
+            console.log("Insufficient neorimas to complete purchase")
             return res.status(403).send({ message: "Insufficient neorimas to complete purchase" });
         }
 
