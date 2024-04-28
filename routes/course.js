@@ -5,6 +5,7 @@ import {
     getAllCourses,
     getCourse,
     updateCourse,
+    getCoursesByPath
 } from "../controllers/courses.js";
 
 const router = Router();
@@ -22,5 +23,8 @@ router.get("/", validateToken, getCourse);
 
 //Update Course
 router.put("/", validateToken, updateCourse);
+
+//Courses by Path
+router.get("/path", validateToken, getCoursesByPath);
 
 export default router;

@@ -153,6 +153,7 @@ export const updateCourse = async (req, res) => {
         }
     }
 };
+
 export const getCoursesByPath = async (req, res) => {
     try{
         const name_path = req.query.name_path;
