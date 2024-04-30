@@ -17,6 +17,6 @@ router.get("/random", validateToken, getRandomSprites);
 router.post("/", validateToken, buySprite);
 
 //Get user sprites
-router.post("/user", getUserSprites);
+router.get("/user", validateToken, getUserSprites);
 
 export default router;

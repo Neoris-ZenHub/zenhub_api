@@ -104,9 +104,7 @@ export const buySprite = async (req, res) => {
 // Get User Sprites for videogame
 export const getUserSprites = async (req, res) => {
     try {
-        //const _id_user = req.user._id_user; 
-
-        const { _id_user }= req.body; //Por mientras
+        const _id_user = req.user._id_user; 
 
         const userSprites = await User.findOne({
             where: { _id_user: _id_user },
