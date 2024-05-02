@@ -8,6 +8,7 @@ import { Path } from "../models/paths.js";
 import { Course } from "../models/courses.js";
 import { UserCourse } from "../models/user-courses.js";
 import bcrypt from 'bcrypt';
+
 const saltRounds = 10;
 
 //Sign Up
