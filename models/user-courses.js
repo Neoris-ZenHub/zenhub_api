@@ -69,17 +69,20 @@ UserCourse.addHook('afterUpdate', async (userCourse, options) => {
                 user.neorimas += neorimasToAdd;
                 await user.save({ transaction });
             }
-        }
 
-        if (newProgress === 100 && !userCourse.status) {
-            userCourse.status = true;
+            // Get the course to calculate the minutes
             const course = await Course.findByPk(userCourse._id_course, { transaction });
             if (course) {
-                userCourse.minutes = course.duration;
+                // Calculate the minutes based on the progress and the course duration
+                const minutes = (course.duration * newProgress) / 100;
+                await userCourse.update({ minutes }, { transaction, hooks: false });
             } else {
                 throw new Error("Course not found");
             }
-            await userCourse.save({ transaction });
+        }
+
+        if (newProgress === 100 && !userCourse.status) {
+            await userCourse.update({ status: true }, { transaction, hooks: false });
         }
 
         if (!options.transaction) {
