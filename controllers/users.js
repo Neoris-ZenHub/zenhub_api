@@ -7,6 +7,9 @@ import { User } from "../models/users.js";
 import { Path } from "../models/paths.js";
 import { Course } from "../models/courses.js";
 import { UserCourse } from "../models/user-courses.js";
+import bcrypt from 'bcrypt';
+const saltRounds = 10;
+
 //Sign Up
 export const createUser = async (req,res) => {
     try {
@@ -33,14 +36,17 @@ export const createUser = async (req,res) => {
             }
         }
 
+        // Hashear la contrasñea antes de guardarla
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
         const [userCreated, created] = await User.findOrCreate({
             where: { email },
             defaults: {
                 name,
                 last_name,
                 username,
-                password,
-                email
+                email,
+                password: hashedPassword,
             },
         });
 
@@ -95,7 +101,10 @@ export const logIn = async (req, res) => {
             return res.status(404).send({ message: "User not found." });
         }
 
-        if (user.password !== password) {
+        // Checar contraseña hasheada
+        const match = await bcrypt.compare(password, user.password);
+
+        if (!match) {
             return res.status(401).send({ message: "Invalid credentials." });
         }
 
