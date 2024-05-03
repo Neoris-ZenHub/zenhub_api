@@ -81,8 +81,10 @@ UserCourse.addHook('afterUpdate', async (userCourse, options) => {
             }
         }
 
-        if (newProgress === 100 && !userCourse.status) {
+        if (newProgress >= 100 && !userCourse.status) {
+            console.log('Updating status to true');
             await userCourse.update({ status: true }, { transaction, hooks: false });
+            await userCourse.reload();
         }
 
         if (!options.transaction) {
